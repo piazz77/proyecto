@@ -1,300 +1,413 @@
-body {
-            padding: 0;
-            text-align: center;
-            margin: 0;
-            background-color: #f4f4f4;
-            background: radial-gradient(circle at top, #1b2735, #0d1b28);
-        }
+ body {
+
+     padding: 0;
+
+     text-align: center;
+
+     margin: 0;
+
+     background-color: #f4f4f4;
+
+     background: radial-gradient(circle at top, #1b2735, #0d1b28);
+
+ }
 
 
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 60px;
-  border-bottom: 1px solid rgba(240, 234, 193, 0.15);
-}
-
-.header-content h2 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: 2px;
-  color: #f0eac1;
-  text-transform: uppercase;
-}
-
-.nav {
-  display: flex;
-  gap: 30px;
-}
-
-.nav a {
-  color: #f0eac1;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: color 0.3s, text-shadow 0.3s;
-}
-
-.nav a:hover {
-  color: #ffffff;
-  text-shadow: 0 0 8px rgba(240, 234, 193, 0.6);
-}
-
-.camera-section {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 800px;
-            margin: 40px auto;
-        }
-
-#simuladorArea {
-            position: relative;
-            width: 640px;
-            height: 480px;
-            margin: 20px auto;
-            border: 1px solid #333;
-            overflow: hidden;
-        }
-
-        #liveCameraFeed{
-            width: 100%;
-            height: 100%;
-        }
-        /*estilo para la lampara que se insertara con js*/
-
-        .lampara-superpuesta{
-            position:absolute;
-            width: 150px;
-            height: auto;
-            cursor:grab;
-            z-index: 10;
-        }
-
-        /*animacion de entrada suave*/
-        /* Definición de la animación de zoom/fade */
-@keyframes entradaSuave {
-    /* Estado inicial (invisible y ligeramente pequeño) */
-    from {
-        opacity: 0;
-        transform: scale(0.98); /* 2% más pequeño */
-    }
-    /* Estado final (visible y tamaño normal) */
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-main {
- 
-    margin-top: 20px; 
-
-    /* Aplicar la animación: nombre, duración, función de tiempo */
-    animation: entradaSuave 0.8s ease-out forwards; 
-    /* 'forwards' asegura que se quede en el estado final */
-}
-
-.layout-container {
-    display:flex;
-    gap:30px;
-    max-width: 1200px;
-    margin:30px auto;
-    align-items: flex-start;
-}
-
-.sidebar-lamparas {
-    width: 250px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.simulador-principal{
-    flex-grow: 1;
-    position: relative;
-    min-height: 400px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-/*estilos de seleccion de lamparas*/
-.selection-box{
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-/*grid para ordenar los botones de forma vertical*/
-display: grid;
-grid-template-columns: 1fr;
-gap: 10px;
-}
-
-.selection-box h4{
-    margin-top: 0;
-    margin-bottom: 15px;
-    color:#333;
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-/*estilo para cada boton*/
-.add-lamp-btn{
-    padding:10px 15px;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: left;
-    width: 100%;
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-.add-lamp-btn:hover{
-    background-color: #f0f0f0;
-    border-color: #a0a0a0;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#activateCameraButton{
-   border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: bold;
-    background-color: #a0a0a0;
-    color: #333;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 50%;
-    height: auto;
-    border: none;
-}
-#activateCameraButton:hover{
-    background-color: #888888;
-}
-
-#stopCameraButton{
-   border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: bold;
-    background-color: #ff4d4d;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 50%;
-    height: auto;
-    border: none;
-}
-#stopCameraButton:hover{
-    background-color: #ff1a1a;
-}
-#takePhotoBtn, #clearPhotoBtn, #addLampBtn, #saveLamp-Btn{
-   border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: bold;
-    background-color: #4CAF50;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 50%;
-    height: auto;
-    border: none;
-    margin-top: 10px;
-}
-#takePhotoBtn:hover, #clearPhotoBtn:hover, #addLampBtn:hover, #saveLamp-Btn:hover{
-    background-color: #45a049;
-}
-  
-
-/*estilos para bototnes de ajustar lampara*/
-
-.scale-buttons-container {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.scale-btn {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #5d98cf; 
-    color: white;
-    font-weight: bold;
-    flex-grow: 1;
-    transition: background-color 0.2s;
-}
-
-.scale-btn:hover {
-    background-color: #3b76b2;
-}
 
 
-.lampara-superpuesta {
-    position: absolute;
-    transition: transform 0.1s ease-out; 
-    
-}
-
-/*  Estilo del Contenedor de Seleccion */
-
-.selection-box {
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); 
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px; 
-}
-
-/* (.lampara-card) */
-.lampara-card {
-    display: flex; 
-    align-items: center; 
-    padding: 8px;
-    background-color: #fcfcfc;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
 
 
-.lampara-card:hover {
-    background-color: #f0f0f0;
-    border-color: #a0a0a0;
-    transform: scale(1.02); 
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+ .header-content {
 
-/*Estilo de la Imagen de Preview (Miniatura) */
-.lampara-card img {
-    width: 40px; 
-    height: 40px;
-    
-    object-fit: contain; 
-    margin-right: 10px;
-    border-radius: 3px; 
-    border: 1px solid #ccc;
-    padding: 2px; 
-}
+     display: flex;
 
-/*  Estilo del Nombre de la Lámpara  */
-.lampara-card span {
-    font-size: 13px; 
-    font-weight: 500;
-    color: #333;
-    
-}
+     justify-content: space-between;
+
+     align-items: center;
+
+     padding: 25px 60px;
+
+     border-bottom: 1px solid rgba(240, 234, 193, 0.15);
+
+ }
+
+
+
+ .header-content h2 {
+
+     margin: 0;
+
+     font-size: 1.4rem;
+
+     font-weight: 600;
+
+     letter-spacing: 2px;
+
+     color: #f0eac1;
+
+     text-transform: uppercase;
+
+ }
+
+
+
+ .nav {
+
+     display: flex;
+
+     gap: 30px;
+
+ }
+
+
+
+ .nav a {
+
+     color: #f0eac1;
+
+     text-decoration: none;
+
+     font-size: 0.95rem;
+
+     transition: color 0.3s, text-shadow 0.3s;
+
+ }
+
+
+
+ .nav a:hover {
+
+     color: #ffffff;
+
+     text-shadow: 0 0 8px rgba(240, 234, 193, 0.6);
+
+ }
+
+
+
+ .camera-section {
+
+     background-color: white;
+
+     padding: 20px;
+
+     border-radius: 8px;
+
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+     max-width: 800px;
+
+     margin: 40px auto;
+
+ }
+
+
+
+ #simuladorArea {
+
+     position: relative;
+
+     width: 640px;
+
+     height: 480px;
+
+     margin: 20px auto;
+
+     border: 1px solid #333;
+
+     overflow: hidden;
+
+ }
+
+
+
+ #liveCameraFeed {
+
+     width: 100%;
+
+     height: 100%;
+
+ }
+
+ /*estilo para la lampara que se insertara con js*/
+
+
+
+ .lampara-superpuesta {
+
+     position: absolute;
+
+     width: 150px;
+
+     height: auto;
+
+     cursor: grab;
+
+     z-index: 10;
+
+ }
+
+
+
+ /*animacion de entrada suave*/
+
+ /* Definición de la animación de zoom/fade */
+
+ @keyframes entradaSuave {
+
+     /* Estado inicial (invisible y ligeramente pequeño) */
+
+     from {
+
+         opacity: 0;
+
+         transform: scale(0.98);
+         /* 2% más pequeño */
+
+     }
+
+     /* Estado final (visible y tamaño normal) */
+
+     to {
+
+         opacity: 1;
+
+         transform: scale(1);
+
+     }
+
+ }
+
+ main {
+
+
+
+     margin-top: 20px;
+
+
+
+     /* Aplicar la animación: nombre, duración, función de tiempo */
+
+     animation: entradaSuave 0.8s ease-out forwards;
+
+     /* 'forwards' asegura que se quede en el estado final */
+
+ }
+
+
+
+ .layout-container {
+
+     display: flex;
+
+     gap: 30px;
+
+     max-width: 1200px;
+
+     margin: 30px auto;
+
+     align-items: flex-start;
+
+ }
+
+
+
+ .sidebar-lamparas {
+
+     width: 250px;
+
+     flex-shrink: 0;
+
+     display: flex;
+
+     flex-direction: column;
+
+     gap: 20px;
+
+ }
+
+
+
+ .simulador-principal {
+
+     flex-grow: 1;
+
+     position: relative;
+
+     min-height: 400px;
+
+     background-color: #f0f0f0;
+
+     border-radius: 8px;
+
+     overflow: hidden;
+
+     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+ }
+
+ /*estilo para cada boton*/
+ .add-lamp-btn {
+     padding: 10px 15px;
+     font-size: 14px;
+     font-weight: 600;
+     text-align: left;
+     width: 100%;
+     background-color: #fff;
+     color: #333;
+     border: 1px solid #ccc;
+     border-radius: 5px;
+     cursor: pointer;
+     transition: all 0.2s ease-in-out;
+ }
+
+ .add-lamp-btn:hover {
+     background-color: #f0f0f0;
+     border-color: #a0a0a0;
+     transform: translateY(-1px);
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+ }
+
+ #activateCameraButton {
+     border-radius: 20px;
+     padding: 10px 20px;
+     font-weight: bold;
+     background-color: #a0a0a0;
+     color: #333;
+     cursor: pointer;
+     transition: background-color 0.3s ease;
+     width: 50%;
+     height: auto;
+     border: none;
+ }
+
+ #activateCameraButton:hover {
+     background-color: #888888;
+ }
+
+ #stopCameraButton {
+     border-radius: 20px;
+     padding: 10px 20px;
+     font-weight: bold;
+     background-color: #ff4d4d;
+     color: #fff;
+     cursor: pointer;
+     transition: background-color 0.3s ease;
+     width: 50%;
+     height: auto;
+     border: none;
+ }
+
+ #stopCameraButton:hover {
+     background-color: #ff1a1a;
+ }
+
+ #takePhotoBtn,
+ #clearPhotoBtn,
+ #addLampBtn,
+ #saveLamp-Btn {
+     border-radius: 20px;
+     padding: 10px 20px;
+     font-weight: bold;
+     background-color: #4CAF50;
+     color: #fff;
+     cursor: pointer;
+     transition: background-color 0.3s ease;
+     width: 50%;
+     height: auto;
+     border: none;
+     margin-top: 10px;
+ }
+
+ #takePhotoBtn:hover,
+ #clearPhotoBtn:hover,
+ #addLampBtn:hover,
+ #saveLamp-Btn:hover {
+     background-color: #45a049;
+ }
+
+
+ /*estilos para bototnes de ajustar lampara*/
+
+ .scale-buttons-container {
+     display: flex;
+     gap: 10px;
+     margin-top: 10px;
+ }
+
+ .scale-btn {
+     padding: 8px 15px;
+     border: none;
+     border-radius: 5px;
+     cursor: pointer;
+     background-color: #5d98cf;
+     color: white;
+     font-weight: bold;
+     flex-grow: 1;
+     transition: background-color 0.2s;
+ }
+
+ .scale-btn:hover {
+     background-color: #3b76b2;
+ }
+
+
+ .lampara-superpuesta {
+     position: absolute;
+     transition: transform 0.1s ease-out;
+
+ }
+
+ /*  Estilo del Contenedor de Seleccion */
+
+ .selection-box {
+     padding: 15px;
+     border: 1px solid #ddd;
+     border-radius: 8px;
+     background-color: #ffffff;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 10px;
+ }
+
+ /* (.lampara-card) */
+ .lampara-card {
+     display: flex;
+     align-items: center;
+     padding: 8px;
+     background-color: #fcfcfc;
+     border: 1px solid #e0e0e0;
+     border-radius: 5px;
+     cursor: pointer;
+     transition: all 0.2s ease-in-out;
+ }
+
+
+ .lampara-card:hover {
+     background-color: #f0f0f0;
+     border-color: #a0a0a0;
+     transform: scale(1.02);
+     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+ }
+
+ /*Estilo de la Imagen de Preview (Miniatura) */
+ .lampara-card img {
+     width: 40px;
+     height: 40px;
+
+     object-fit: contain;
+     margin-right: 10px;
+     border-radius: 3px;
+     border: 1px solid #ccc;
+     padding: 2px;
+ }
+
+ /*  Estilo del Nombre de la Lámpara  */
+ .lampara-card span {
+     font-size: 13px;
+     font-weight: 500;
+     color: #333;
+
+ }

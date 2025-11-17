@@ -152,6 +152,11 @@ clearPhotoButton.addEventListener('click', () => {
     simuladorArea.innerHTML = `<video id="liveCameraFeed" autoplay playsinline></video>
                               <canvas id="photoCanvas" style="display: none;"></canvas>`;
     
+  
+ //limpiar mensaje de la lampara
+    errorMessage.textContent = '';
+
+    
     // Restablecer los botones
     clearPhotoButton.style.display = 'none';
     saveLampButton.style.display = 'none';

@@ -1,14 +1,5 @@
-/* Header flex para Home a la izquierda */
-.header-flex {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    background-color: #333;
-    color: white;
-    padding: 1rem 0;
-    width: 100%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
+
+    
 
 .home-link {
     margin-left: 2rem;

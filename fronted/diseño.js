@@ -319,3 +319,4 @@ document.querySelectorAll(".social-icon").forEach(icon => {
         });
     });
 });
+})();
