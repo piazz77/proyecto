@@ -240,7 +240,7 @@ window.resetDesign = resetDesign;
 
 //logica y animaciones para el footer
 
-
+(function(){
 
 
 gsap.from(".animated-footer", {
@@ -297,7 +297,7 @@ gsap.timeline({
     duration: 0.6,
     ease: "power2.out"
 }, "-=0.3");
-
+    
 
 
 document.querySelectorAll(".social-icon").forEach(icon => {
