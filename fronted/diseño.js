@@ -1,14 +1,10 @@
-// Safe console polyfill: ensures console.* calls won't throw when devtools are closed (older browsers)
+// Safe console polyfill
 (function(){
   try {
     if (!window.console) window.console = {};
-    var methods = ['log','debug','info','warn','error','assert','clear','count','dir','dirxml','exception','group','groupCollapsed','groupEnd','profile','profileEnd','time','timeEnd','trace'];
-    for (var i=0;i<methods.length;i++){
-      if (!window.console[methods[i]]) window.console[methods[i]] = function(){};
-    }
-  } catch (e) {
-    // ignore
-  }
+    const methods = ['log','debug','info','warn','error','assert','clear','count','dir','dirxml','exception','group','groupCollapsed','groupEnd','profile','profileEnd','time','timeEnd','trace'];
+    methods.forEach(m => { if(!window.console[m]) window.console[m] = function(){}; });
+  } catch(e){}
 })();
 
 // --- VARIABLES GLOBALES ---
@@ -22,25 +18,29 @@ const askAiBtn = document.getElementById('ask-ai');
 const clearAiBtn = document.getElementById('clear-ai');
 const suggestionsOutput = document.getElementById('suggestions-output');
 
-// Ruta base para las imágenes grandes
+const chatInput = document.getElementById("chat-input");
+const chatSend = document.getElementById("chat-send");
+const chatWindow = document.getElementById("chat-window");
+
+// Ruta base para las imágenes grandes (fallbacks a archivos reales en /foto)
 const imagePaths = {
   base: {
-    "base-modern": "images/base-modern.png",
-    "base-classic": "images/base-classic.png",
-    "base-wood": "images/base-wood.png",
+    "base-modern": "foto/Basemoderna.png",
+    "base-classic": "foto/lamparaclasica.png",
+    "base-wood": "foto/basedemadera.jpeg",
   },
   shade: {
-    "shade-cone": "images/shade-cone.png",
-    "shade-drum": "images/shade-drum.png",
-    "shade-fabric": "images/shade-fabric.png",
+    "shade-cone": "foto/pantallaconica.jpg",
+    "shade-drum": "foto/pantalla tambor.webp",
+    "shade-fabric": "foto/pantalla tela.jpg",
   },
   bulb: {
-    "bulb-led": "images/bulb-led.png",
-    "bulb-incandescent": "images/bulb-incandescent.png",
+    "bulb-led": "foto/bombillaled.webp",
+    "bulb-incandescent": "foto/bombillaincandescente.png",
   },
 };
 
-// --- ESTADO DEL DISEÑO ACTUAL ---
+// --- ESTADO DEL DISEÑO ---
 let currentDesign = {
   base: null,
   shade: null,
@@ -48,57 +48,22 @@ let currentDesign = {
   totalPrice: 0,
 };
 
-// --- MANEJADOR DE CLIC EN BOTONES (selección de partes) ---
-optionButtons.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const part = btn.dataset.part || btn.getAttribute('data-part');
-    const value = btn.dataset.value || btn.getAttribute('data-value');
-    const price = parseFloat(btn.dataset.price || btn.getAttribute('data-price') || '0');
+// --- FUNCIONES AUXILIARES ---
+function getThumbSrc(btn, part, value){
+  const thumb = btn.querySelector('img');
+  if(thumb && thumb.src) return encodeURI(thumb.src);
+  return imagePaths[part]?.[value] || '';
+}
 
-    // Quitar selección previa del mismo grupo
-    document.querySelectorAll(`.option-btn[data-part="${part}"]`).forEach((b) => b.classList.remove('selected'));
-
-    // Marcar el botón actual como seleccionado
-    btn.classList.add('selected');
-
-    // Actualizar imagen correspondiente en la previsualización
-    const imgElement = part === 'base' ? baseImg : part === 'shade' ? shadeImg : bulbImg;
-    // Preferir la miniatura del botón (si existe) para evitar recuadros vacíos o rutas distintas
-    const thumb = btn.querySelector('img');
-    let thumbSrc = thumb && thumb.getAttribute('src') ? thumb.getAttribute('src') : (thumb && thumb.src ? thumb.src : '');
-    if (thumbSrc) {
-      // encode spaces or special chars
-      try { thumbSrc = encodeURI(thumbSrc); } catch (e) { /* ignore */ }
-      imgElement.src = thumbSrc;
-    } else if (imagePaths[part] && imagePaths[part][value]) {
-      imgElement.src = imagePaths[part][value];
-    } else {
-      imgElement.src = '';
-    }
-
-    // manejar imagen rota: esconder si no carga
-    imgElement.onload = () => { imgElement.style.display = 'block'; };
-    imgElement.onerror = () => { imgElement.src = ''; imgElement.style.display = 'none'; };
-
-    // Actualizar estado
-    currentDesign[part] = { value, price };
-    updateTotalPrice();
-  });
-});
-
-// --- FUNCION PARA ACTUALIZAR PRECIO ---
-function updateTotalPrice() {
+function updateTotalPrice(){
   let total = 0;
-  ["base", "shade", "bulb"].forEach((part) => {
-    if (currentDesign[part]) {
-      total += currentDesign[part].price;
-    }
+  ["base","shade","bulb"].forEach(part=>{
+    if(currentDesign[part]) total += currentDesign[part].price;
   });
   currentDesign.totalPrice = total;
 
-  // Mostrar el precio
   let priceDisplay = document.getElementById("price-display");
-  if (!priceDisplay) {
+  if(!priceDisplay){
     priceDisplay = document.createElement("div");
     priceDisplay.id = "price-display";
     document.querySelector(".lamp-preview").appendChild(priceDisplay);
@@ -106,256 +71,251 @@ function updateTotalPrice() {
   priceDisplay.textContent = `Precio total: $${total.toFixed(2)}`;
 }
 
-// --- EVENTO: AÑADIR AL CARRITO ---
-addToCartBtn.addEventListener("click", () => {
-  if (!currentDesign.base || !currentDesign.shade || !currentDesign.bulb) {
+function localSuggestion(design){
+  const parts = [];
+  if(design.base) parts.push(`base: ${design.base}`);
+  if(design.shade) parts.push(`pantalla: ${design.shade}`);
+  if(design.bulb) parts.push(`bombilla: ${design.bulb}`);
+  const lines = [];
+  lines.push(`Sugerencias para tu lámpara (${parts.join(', ')}):`);
+  if(design.shade && design.shade.includes('fabric')){
+    lines.push('- Usa una bombilla LED cálida para realzar las texturas de la pantalla de tela.');
+  } else {
+    lines.push('- Considera una pantalla de tela si buscas luz difusa y ambiental.');
+  }
+  if(design.base && design.base.includes('wood')){
+    lines.push('- La base de madera queda bien con tonos cálidos; prueba una pantalla clara.');
+  }
+  lines.push(`- Precio estimado: $${(design.price || 0).toFixed(2)}.`);
+  return lines.join('\n');
+}
+
+// --- MANEJADOR DE SELECCIÓN ---
+optionButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const part = btn.dataset.part;
+    const value = btn.dataset.value;
+    const price = parseFloat(btn.dataset.price || '0');
+
+    document.querySelectorAll(`.option-btn[data-part="${part}"]`).forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+
+    const imgEl = part==='base'?baseImg:part==='shade'?shadeImg:bulbImg;
+    // Prefer a known mapping in imagePaths (avoid thumbnail path issues with spaces)
+    const mapped = imagePaths[part] && imagePaths[part][value] ? imagePaths[part][value] : '';
+    if (mapped) {
+      imgEl.src = mapped;
+    } else {
+      imgEl.src = getThumbSrc(btn, part, value);
+    }
+    imgEl.onload = ()=>imgEl.style.display='block';
+    imgEl.onerror = ()=>{imgEl.src=''; imgEl.style.display='none';};
+
+    currentDesign[part] = {value, price};
+    updateTotalPrice();
+  });
+});
+
+// --- AÑADIR AL CARRITO ---
+addToCartBtn?.addEventListener('click', ()=>{
+  if(!currentDesign.base || !currentDesign.shade || !currentDesign.bulb){
     alert("Por favor selecciona todas las partes antes de añadir al carrito.");
     return;
   }
-  // Generar comprobante en DOM
   renderReceipt(currentDesign);
 });
 
-function renderReceipt(design) {
-  if (!receiptEl) return;
+// --- RENDER DE RECEIPT ---
+function renderReceipt(design){
+  if(!receiptEl) return;
   const date = new Date().toLocaleString();
-  // Determine image sources (if images in preview use data-src or src)
-  // Prefer the preview image; if empty, try to get the thumbnail from the selected option button
-  const getSelectedThumb = (part) => {
+  const getSelectedThumb = (part)=>{
     const sel = document.querySelector(`.option-btn[data-part="${part}"].selected`);
-    if (sel) {
-      const img = sel.querySelector('img');
-      if (img && img.src) return img.src;
-    }
-    // fallback: find by data-value stored in currentDesign
+    if(sel){ const img = sel.querySelector('img'); if(img && img.src) return img.src; }
     const val = currentDesign[part]?.value;
-    if (val) {
-      const btn = document.querySelector(`.option-btn[data-part="${part}"][data-value="${val}"]`);
-      if (btn) {
-        const img = btn.querySelector('img');
-        if (img && img.src) return img.src;
-      }
-    }
+    if(val){ const btn = document.querySelector(`.option-btn[data-part="${part}"][data-value="${val}"]`);
+      if(btn){ const img = btn.querySelector('img'); if(img && img.src) return img.src; } }
     return '';
   };
-
-  const baseSrc = (document.getElementById('lamp-base')?.src || '').trim() || getSelectedThumb('base');
-  const shadeSrc = (document.getElementById('lamp-shade')?.src || '').trim() || getSelectedThumb('shade');
-  const bulbSrc = (document.getElementById('lamp-bulb')?.src || '').trim() || getSelectedThumb('bulb');
+  const baseSrc = baseImg.src.trim() || getSelectedThumb('base');
+  const shadeSrc = shadeImg.src.trim() || getSelectedThumb('shade');
+  const bulbSrc = bulbImg.src.trim() || getSelectedThumb('bulb');
 
   const html = `
     <div class="receipt-card">
       <h3>Comprobante de armado</h3>
       <div class="receipt-row"><strong>Fecha:</strong> ${date}</div>
       <div class="receipt-thumbs">
-        ${baseSrc ? `<div class="thumb"><img src="${baseSrc}" alt="Base"></div>` : ''}
-        ${shadeSrc ? `<div class="thumb"><img src="${shadeSrc}" alt="Pantalla"></div>` : ''}
-        ${bulbSrc ? `<div class="thumb"><img src="${bulbSrc}" alt="Bombilla"></div>` : ''}
+        ${baseSrc?`<div class="thumb"><img src="${baseSrc}" alt="Base"></div>`:''}
+        ${shadeSrc?`<div class="thumb"><img src="${shadeSrc}" alt="Pantalla"></div>`:''}
+        ${bulbSrc?`<div class="thumb"><img src="${bulbSrc}" alt="Bombilla"></div>`:''}
       </div>
       <div class="receipt-row"><strong>Base:</strong> ${design.base.value} - $${design.base.price.toFixed(2)}</div>
       <div class="receipt-row"><strong>Pantalla:</strong> ${design.shade.value} - $${design.shade.price.toFixed(2)}</div>
       <div class="receipt-row"><strong>Bombilla:</strong> ${design.bulb.value} - $${design.bulb.price.toFixed(2)}</div>
       <div class="receipt-row"><strong>Total:</strong> $${design.totalPrice.toFixed(2)}</div>
-      <div class="receipt-actions">
-        <button id="print-receipt" type="button" onclick="window.print()">Imprimir</button>
-      </div>
+      <div class="receipt-actions"><button id="print-receipt" type="button" onclick="window.print()">Imprimir</button></div>
     </div>
   `;
-  // Create or reuse a modal container attached to body so nothing overlays it
+
   let modal = document.getElementById('receipt-modal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'receipt-modal';
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    document.body.appendChild(modal);
-  }
+  if(!modal){ modal = document.createElement('div'); modal.id='receipt-modal'; modal.setAttribute('role','dialog'); modal.setAttribute('aria-modal','true'); document.body.appendChild(modal); }
   modal.innerHTML = `<div class="receipt-backdrop" id="receipt-backdrop"></div><div class="receipt" id="receipt-content">${html}</div>`;
-  modal.style.position = 'fixed';
-  modal.style.left = '0';
-  modal.style.top = '0';
-  modal.style.width = '100%';
-  modal.style.height = '100%';
-  modal.style.zIndex = '9999';
-  modal.style.pointerEvents = 'auto';
-  // store a reference to the content area for later operations
-  const receiptContent = document.getElementById('receipt-content');
+  modal.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;z-index:9999;pointer-events:auto;';
+  receiptEl.hidden = true;
 
-  // Ensure the original #receipt element is hidden (for ARIA/compat)
-  if (receiptEl) { receiptEl.hidden = true; }
-
-  // After inserting HTML ensure buttons are focusable and accept pointer events
-  // Buttons are inside the modal's content
-  const printBtn = document.getElementById('print-receipt');
-  if (printBtn) {
-    printBtn.tabIndex = 0;
-    printBtn.style.pointerEvents = 'auto';
-  }
-  // no confirm button anymore
-
-  // small visible click counter to help debug click behavior without console
-  // attach the click counter inside the modal content
-  let counter = receiptContent.querySelector('.receipt-click-counter');
-  if (!counter) {
-    counter = document.createElement('div');
-    counter.className = 'receipt-click-counter';
-    counter.style.fontSize = '0.8rem';
-    counter.style.color = '#666';
-    counter.style.marginTop = '0.5rem';
-    counter.textContent = 'Clicks: 0';
-    receiptContent.querySelector('.receipt-card').appendChild(counter);
-  }
-  // helper to bump counter when actions happen
-  function bumpCounter() {
-  const el = receiptContent.querySelector('.receipt-click-counter');
-    if (!el) return;
-    const n = parseInt(el.textContent.replace(/[^0-9]/g, '') || '0', 10) + 1;
-    el.textContent = `Clicks: ${n}`;
-  }
-  // Track clicks on the two action buttons specifically
-  if (printBtn) printBtn.addEventListener('click', bumpCounter);
-
-  // Close modal helper when order confirmed or when backdrop clicked
-  const backdrop = document.getElementById('receipt-backdrop');
-  function closeModal() {
-    const m = document.getElementById('receipt-modal');
-    if (m) m.parentNode.removeChild(m);
-    if (receiptEl) receiptEl.hidden = true;
-  }
-  if (backdrop) backdrop.addEventListener('click', closeModal);
+  document.getElementById('receipt-backdrop').addEventListener('click', ()=>{ modal.remove(); });
 }
 
-// Receipt actions are handled directly on the modal buttons now (print only)
-
-// confirmOrder removed: confirmation flow replaced by print-only receipt
-
-function resetDesign() {
-  optionButtons.forEach((b) => b.classList.remove("selected"));
-  if (baseImg) baseImg.src = "";
-  if (shadeImg) shadeImg.src = "";
-  if (bulbImg) bulbImg.src = "";
-  currentDesign = { base: null, shade: null, bulb: null, totalPrice: 0 };
+// --- RESET DISEÑO ---
+function resetDesign(){
+  optionButtons.forEach(b=>b.classList.remove('selected'));
+  if(baseImg) baseImg.src=''; if(shadeImg) shadeImg.src=''; if(bulbImg) bulbImg.src='';
+  currentDesign = {base:null,shade:null,bulb:null,totalPrice:0};
   updateTotalPrice();
-  if (receiptEl) {
-    receiptEl.innerHTML = "";
-    receiptEl.hidden = true;
-  }
+  if(receiptEl){ receiptEl.innerHTML=''; receiptEl.hidden=true; }
 }
 
-// Generador local de sugerencias (fallback cuando no hay backend)
-function localSuggestion(design) {
-  const parts = [];
-  if (design.base) parts.push(`base: ${design.base}`);
-  if (design.shade) parts.push(`pantalla: ${design.shade}`);
-  if (design.bulb) parts.push(`bombilla: ${design.bulb}`);
-
-  const lines = [];
-  lines.push(`Sugerencias para tu lámpara (${parts.join(', ')}):`);
-  if (design.shade && design.shade.includes('fabric')) {
-    lines.push('- Usa una bombilla LED cálida para realzar las texturas de la pantalla de tela.');
-  } else {
-    lines.push('- Considera una pantalla de tela si buscas una luz más difusa y ambiental.');
-  }
-  if (design.base && design.base.includes('wood')) {
-    lines.push('- La base de madera queda bien con tonos cálidos; prueba una pantalla clara.');
-  }
-  lines.push(`- Precio estimado: $${(design.price || 0).toFixed(2)}.`);
-  // removed informational note per user request
-  return lines.join('\n');
-}
-
-// --- IA: pedir sugerencias al backend ---
-async function askAiSuggestion() {
-  console.debug('askAiSuggestion called');
-  if (!askAiBtn) {
-    console.debug('askAiBtn not found');
-    return;
-  }
-  const payload = {
-    design: {
-      base: currentDesign.base?.value || null,
-      shade: currentDesign.shade?.value || null,
-      bulb: currentDesign.bulb?.value || null,
-      price: currentDesign.totalPrice || 0,
-    }
-  };
-
+// --- SUGERENCIAS AI ---
+async function askAiSuggestion(){
+  if(!askAiBtn) return;
+  const payload = { design: { base: currentDesign.base?.value||null, shade: currentDesign.shade?.value||null, bulb: currentDesign.bulb?.value||null, price: currentDesign.totalPrice||0 } };
   try {
-    askAiBtn.disabled = true;
-    askAiBtn.textContent = 'Cargando...';
-    suggestionsOutput.textContent = 'Solicitando sugerencia...';
-
-    // Intenta ruta relativa primero; si la respuesta es no-ok (405/404/500) intenta el backend en localhost:3001
+    askAiBtn.disabled = true; askAiBtn.textContent='Cargando...'; suggestionsOutput.textContent='Solicitando sugerencia...';
     let res;
     try {
-      res = await fetch('/api/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        console.warn('Relative endpoint returned non-ok status', res.status, res.statusText);
-        // intenta fallback
-        try {
-          res = await fetch('http://localhost:3001/api/suggest', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-        } catch (e2) {
-          console.error('Fallback fetch failed (network)', e2);
-          // proceed to error handling below
-        }
-      }
-    } catch (e) {
-        console.warn('Relative fetch failed (network), trying http://localhost:3001', e);
-        try {
-          res = await fetch('http://localhost:3001/api/suggest', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-        } catch (e2) {
-          console.error('Fallback fetch also failed', e2);
-          // Use local fallback suggestions so the feature works offline without backend
-          const local = localSuggestion(payload.design);
-          suggestionsOutput.textContent = local;
-          return;
-        }
-    }
-
-    if (!res || !res.ok) {
-      // if remote failed, fall back to local suggestion generator
-      const local = localSuggestion(payload.design);
-      suggestionsOutput.textContent = local;
-      return;
+      res = await fetch('/api/suggest',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      if(!res.ok) throw new Error('relative endpoint failed');
+    } catch(e){
+      try { res = await fetch('http://localhost:3001/api/suggest',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }); } catch(e2){ suggestionsOutput.textContent=localSuggestion(payload.design); return; }
     }
     const data = await res.json();
-    suggestionsOutput.textContent = data.suggestion || 'Sin respuesta.';
-  } catch (err) {
-    suggestionsOutput.textContent = 'Error: ' + (err.message || err);
+    suggestionsOutput.textContent = data.suggestion || localSuggestion(payload.design);
+  } catch(err){
+    suggestionsOutput.textContent = 'Error: '+(err.message||err);
   } finally {
-    askAiBtn.disabled = false;
-    askAiBtn.textContent = 'Pedir sugerencia';
+    askAiBtn.disabled=false; askAiBtn.textContent='Pedir sugerencia';
   }
 }
 
-if (askAiBtn) askAiBtn.addEventListener('click', askAiSuggestion);
-if (clearAiBtn) clearAiBtn.addEventListener('click', () => { suggestionsOutput.textContent = ''; });
+askAiBtn?.addEventListener('click', askAiSuggestion);
+clearAiBtn?.addEventListener('click', ()=>{ suggestionsOutput.textContent=''; });
 
-// Expose for inline onclick calls
-window.askAiSuggestion = askAiSuggestion;
+// --- CHAT CON BACKEND ---
+function addMessage(content, sender){
+  const msg = document.createElement('p');
+  msg.classList.add(sender==='user'?'user-msg':'ai-msg');
+  msg.textContent = content;
+  chatWindow.appendChild(msg);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
 
-// --- Small visual init to apply catalog look & animations ---
-(function applyCatalogLook(){
+async function sendMessage(){
+  const userText = chatInput.value.trim();
+  if(!userText) return;
+  addMessage(userText,'user'); chatInput.value='';
+  const loadingMsg = document.createElement('p'); loadingMsg.classList.add('ai-msg'); loadingMsg.textContent='Escribiendo...'; chatWindow.appendChild(loadingMsg);
+
   try {
-    document.body.classList.add('catalog-look');
-    // If there are any catalog-card elements, reveal them with the animation
-    const cards = document.querySelectorAll('.catalog-card');
-    cards.forEach((c, i) => setTimeout(() => c.classList.add('visible'), i * 80));
-  } catch (e) {
-    /* ignore */
+    const res = await fetch('http://localhost:3000/api/chat',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:userText}) });
+    const data = await res.json();
+    loadingMsg.remove();
+    addMessage(data.reply,'ai');
+  } catch(err){
+    loadingMsg.remove();
+    addMessage('Error de conexión con el servidor.','ai');
   }
-})();
+}
 
+chatSend?.addEventListener('click', sendMessage);
+chatInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMessage(); });
+
+// --- INIT VISUAL CATALOG ---
+(function(){ document.body.classList.add('catalog-look'); document.querySelectorAll('.catalog-card').forEach((c,i)=>setTimeout(()=>c.classList.add('visible'),i*80)); })();
+
+// Export para onclick globales
+window.askAiSuggestion = askAiSuggestion;
+window.resetDesign = resetDesign;
+
+
+//logica y animaciones para el footer
+
+
+
+
+gsap.from(".animated-footer", {
+    opacity: 0,
+    y: 50,
+    duration: 1,
+    ease: "power3.out",
+    scrollTrigger: {
+        trigger: ".animated-footer",
+        start: "top 80%", 
+        toggleActions: "play none none reverse",
+         // Reproduce la animación una vez y la revierte al salir
+         
+    }
+});
+
+// Animación de los elementos individuales dentro del footer
+gsap.timeline({
+    scrollTrigger: {
+        trigger: ".animated-footer",
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+        
+    }
+})
+.from(".footer-logo", {
+    opacity: 0,
+    y: 20,
+    duration: 0.8,
+    ease: "power2.out"
+}, "<")
+.from(".footer-divider", {
+    opacity: 0,
+    scaleX: 0,
+    duration: 0.8,
+    ease: "power2.out"
+}, "-=0.4") 
+.from(".footer-heading-redes", {
+    opacity: 0,
+    x: -20,
+    duration: 0.6,
+    ease: "power2.out"
+}, "-=0.3")
+.from(".container-footerRedes .social-icon", {
+    opacity: 0,
+    y: 20,
+    stagger: 0.15, 
+    duration: 0.5,
+    ease: "back.out(1.7)" 
+}, "-=0.2")
+.from(".footer-heading-contact", {
+    opacity: 0,
+    x: 20,
+    duration: 0.6,
+    ease: "power2.out"
+}, "-=0.3");
+
+
+
+document.querySelectorAll(".social-icon").forEach(icon => {
+    icon.addEventListener("mouseenter", () => {
+        gsap.to(icon, {
+            y: -5,
+            scale: 1.1,
+            duration: 0.3,
+            ease: "power2.out"
+        });
+    });
+
+    icon.addEventListener("mouseleave", () => {
+        gsap.to(icon, {
+            y: 0,
+            scale: 1,
+            duration: 0.3,
+            ease: "power2.out"
+        });
+    });
+});
