@@ -15,7 +15,7 @@
         <a href="index.html" class="home-link">
             <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home" class="home-icon" />
         </a>
-        <h1>Diseña tu lampara ideal</h1>
+        <h1>Sugerencias de IA para tu Lámpara</h1>
     </header>
     <main class="designer-container">
         <div class="lamp-preview">
@@ -32,14 +32,19 @@
 
         </div>
         <!-- Panel de sugerencias IA -->
-        <aside class="suggestions-panel" id="suggestions-panel">
-            <h3>Sugerencias de diseño (IA)</h3>
-            <div class="suggestions-output" id="suggestions-output">Pulsá "Pedir sugerencia" para obtener ideas.</div>
-            <div class="suggestions-actions">
-                <button id="ask-ai" onclick="askAiSuggestion()">Pedir sugerencia</button>
-                <button id="clear-ai">Limpiar</button>
+       <!-- PANEL DE CHAT IA -->
+        <aside class="chat-panel">
+             <h3>Asistente IA</h3>
+            <div class="chat-window" id="chat-window">
+                <p class="ai-msg">Hola 👋, soy tu asistente. ¿En qué puedo ayudarte con tu lámpara?</p>
+            </div>
+
+            <div class="chat-input-area">
+                <input id="chat-input" type="text" placeholder="Escribe un mensaje...">
+                <button id="chat-send">Enviar</button>
             </div>
         </aside>
+
         <div class="controls-panel">
             <h2>Personaliza Aqui:</h2>
             <section class="control-group">
@@ -96,6 +101,67 @@
         </div>
     </main>
 
+    <footer class="animated-footer">
+    <div class="footer-content">
+      <div class="footer-columns-container">
+
+        <div class="footer-col footer-col-info">
+          <img src="foto/Imagotipo Atelier.png" alt="Atelier de la luz" class="footer-logo">
+          <p class="footer-slogan">"Tu luz, nuestra creación."</p>
+          <p class="footer-copyright">
+            © 2025 Atelier de la Luz. Todos los derechos reservados.
+          </p>
+        </div>
+        <div class="containerCol">
+          <div class="footer-col footer-col-links">
+            <h4 class="footer-heading-col">Navegación</h4>
+            <ul>
+              <li><a
+                  href="https://daniballatore.com.ar/?fbclid=PAb21jcAOEl3JleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA81NjcwNjczNDMzNTI0MjcAAafzRD9JumN-6uzyCgerAeSGPdykH4BnrAQ0mt64ZYlnblF70jpsMiBor1_yvg_aem_drSPKrtMxJVJ3JhXPsoWmA">Acerca
+                  de Nosotros</a></li>
+              <li><a
+                  href="https://atelierdelaluz.mitiendanube.com/?fbclid=PAb21jcAOElz5leHRuA2FlbQIxMQABpxbd2yIxpumuDqYXzuD5gnkxk_7l6dVGvWkuVvMoPxNrxbDB8Izm-biKXbZo_aem_MuoWvXWXa0ba6Qyapl0KVw">Tienda</a>
+              </li>
+              <li><a href="/faq">Preguntas Frecuentes</a></li>
+              <li><a href="https://wa.me/543492595482">Contacto</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col footer-col-legal">
+            <h4 class="footer-heading-col">Ayuda</h4>
+            <ul>
+              <li><a href="/terminos">Términos y Condiciones</a></li>
+              <li><a href="/privacidad">Política de Privacidad</a></li>
+
+            </ul>
+          </div>
+
+          <div class="footer-col footer-col-social">
+            <h4 class="footer-heading-col">¡Contáctame!</h4>
+            <p>Escríbenos a: <a href="mailto:consultas.atelierdelaluz@gmail.com">consultas.atelierdelaluz@gmail.com</a>
+            </p>
+
+            <h4 class="footer-heading-col redes-sec">Redes Sociales</h4>
+            <div class="container-footerRedes">
+              <a href="https://www.instagram.com/atelier.dela.luz/" class="social-icon instagram"><i
+                  class="fa-brands fa-star fa-xl fa-instagram"></i></a>
+              <a href="https://www.tiktok.com/@dani_ballatore?_t=ZM-8uyqP1SAlBF&_r=1" class="social-icon tiktok"><i
+                  class="fa-brands fa-star fa-xl fa-tiktok"></i></a>
+              <a href="https://www.youtube.com/@DaniBallatore" class="social-icon youtube"><i
+                  class="fa-brands fa-star fa-xl fa-youtube"></i></a>
+              <a href="https://wa.me/5493492610697?text=Estoy%20interesado%20en%20la%20Lámpara%20XYZ.%20%C2%BFTienen%20stock%3F"
+                class="social-icon whatsapp"><i class="fa-brands fa-star fa-xl fa-whatsapp"></i></a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
     <script src="diseño.js"></script>
+    <script src="ia.js"></script>
+
 </body>
 </html>
