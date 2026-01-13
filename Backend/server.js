@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import lamparaRoutes from "./routes/lamparaRoutes.js";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
+import favoritosRoutes from "./routes/favoritosRoutes.js";
 import connection from "./config/db.js";
 
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/lamparas", lamparaRoutes); 
 app.use("/api/usuarios", usuariosRoutes);
+app.use("/favoritos", favoritosRoutes);
 
 
 

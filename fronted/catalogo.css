@@ -279,6 +279,7 @@ body {
 /*responsividad*/
 @media (max-width: 768px) {
 
+<<<<<<< Updated upstream
     /* En pantallas pequeñas, apilamos las columnas */
     .footer-columns-container {
         flex-direction: column;
@@ -328,3 +329,29 @@ body {
         margin-top: 10px;
     }
 }
+=======
+.container-footerConsultas {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end; 
+    margin-top: 40px;
+}
+
+.location-image {
+  position: relative;
+  display: inline-block;
+}
+
+.favorito-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 26px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.favorito-icon:hover {
+  transform: scale(1.2);
+}
+>>>>>>> Stashed changes
